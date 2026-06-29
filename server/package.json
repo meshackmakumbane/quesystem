@@ -11,10 +11,15 @@
     "start": "node server.js"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@prisma/client": "^7.8.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "prisma": "^7.8.0",
+=======
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+>>>>>>> 2b86be4e4159743e368416b0c4b1d00b585b8355
     "ws": "^8.21.0"
   },
   "devDependencies": {
