@@ -4,29 +4,81 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
-  super_admin
-  admin
-  receptionist
-  consultant
-  customer
+  SUPER_ADMIN
+  ADMIN
+  RECEPTIONIST
+  CONSULTANT
+  CUSTOMER
+}
+
+enum QueryType {
+  TRANSACT
+  LOAN
+  INSURANCE
+  BUSINESS
+  LIFE
+}
+
+enum TicketStatus {
+  QUEUED
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
 
 model User {
-  id         String   @id @default(cuid())
-  email      String   @unique
+  id         String  @id @default(cuid())
+  email      String  @unique
   name       String?
   password   String
+  employeeId String? @unique
 
-  role       Role     @default(consultant)
+  role Role @default(CUSTOMER)
 
-  branchId   String?
-  branch     Branch?  @relation(fields: [branchId], references: [id])
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
-  tickets    Ticket[]
+  tickets         Ticket[] @relation("CustomerTickets")
+  assignedTickets Ticket[] @relation("AssignedConsultant")
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  station String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ticket {
+  id           String       @id @default(cuid())
+  ticketNumber String       @unique
+  query        QueryType
+  status       TicketStatus @default(QUEUED)
+
+  customerId String?
+  customer   User?   @relation("CustomerTickets", fields: [customerId], references: [id])
+
+  consultantId String?
+  consultant   User?   @relation("AssignedConsultant", fields: [consultantId], references: [id])
+
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Branch {
+  id   String @id @default(cuid())
+  name String
+  code String @unique
+
+  users   User[]
+  tickets Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
